@@ -3,183 +3,424 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Product, Review } from './types';
+import React, { useState } from 'react';
+import { X, Trash2, ShoppingBag, Truck, CreditCard, Sparkles } from 'lucide-react';
+import { CartItem } from '../types';
 
-export const CATEGORIES = [
-  { id: 'all', name: 'All Products', icon: 'grid_view', color: 'bg-surface-container-high/40' },
-  { id: 'crochet-flowers', name: 'Crochet Flowers', icon: 'local_florist', color: 'bg-primary-container/20' },
-  { id: 'bouquets', name: 'Bouquets', icon: 'bouquet', color: 'bg-tertiary-container/20' },
-  { id: 'jewelry', name: 'Jewelry', icon: 'diamond', color: 'bg-secondary-container/20' },
-  { id: 'keychains', name: 'Keychains', icon: 'key', color: 'bg-surface-container-high/50' },
-  { id: 'brooches', name: 'Brooches', icon: 'auto_awesome', color: 'bg-primary-fixed-dim/20' },
-  { id: 'bags', name: 'Bags', icon: 'shopping_basket', color: 'bg-tertiary-fixed-dim/20' }
-];
+interface CartDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  cart: CartItem[];
+  onUpdateQuantity: (productId: string, delta: number) => void;
+  onRemoveItem: (productId: string) => void;
+  onClearCart: () => void;
+  onAddOrder: (order: { items: CartItem[]; total: number; id: string; deliveryDetails: any }) => void;
+}
 
-export const PRODUCTS: Product[] = [
-  {
-    id: 'p1',
-    name: 'Eternal Rose & Lavender Bouquet',
-    category: 'bouquets',
-    price: 1800,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDDpDaPtwH_-XgmocpbC2TRjoQzzDG00zog44VCde83AFXfSVDoIUdV33OlUfjmVb5RPnonH7Te_ZYNFrjcN6hL40p3XhwzZnykK5etoXtt67YLFiXw4BfrmAR70AdkGMSN9K-bLPo8m9dFBgpZj7bxBTf2-JM2kEZfni_i_czYbA-wTwd8DYsOyT5KIaxEW-0c-DX6u2af7GKATtahyQQd1k4_Cu-IvD-kVrr25nxnY9smwV4FlSu_c9DMjTWrZMqQ0rPlWRfvEos',
-    description: 'A beautiful mixed bouquet featuring handcrafted pink crochet roses, delicate white chamomile daisies, and lavender sprigs tied with a luxurious cream satin ribbon. Perfect for graduation, birthdays, or an everlasting expression of love.',
-    rating: 4.9,
-    reviewsCount: 18,
-    stockStatus: 'In Stock',
-    features: ['100% Cotton Yarn', 'Everlasting flowers that never wilt', 'Customizable colors available', 'Hand-tied with silk ribbon'],
-    isCustomizable: true
-  },
-  {
-    id: 'p2',
-    name: 'Kawaii White Kitty Keychain',
-    category: 'keychains',
-    price: 450,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCPcC2SklCQf6VvV60YycSEffVQv02fgBC34rdqn0-CZydU2uf6tv3ZBMSGO8wuEqy18h7ki7Y8Ea1y0WEgSVvtvi8vV7TdTc-qS6M4rT5NQpgXYcApMCeWv_T6nP9J1U78N1yX2ohqVue38sUZq3KHLuUwuI373ms7GqG6ypBdP-H-phqThKsmMM_t9N_vsSUxmPxhBIvvgyylt_6sAOn2LkWsQGhqC-9d8Wk2vNOlQtj073fS7fDgfTIpIh_spNFlOFuQ0GBoYX0',
-    description: 'An incredibly cute, tiny handmade crochet keychain in the shape of a white kitten wearing a charming pink bow. Carefully stitched using premium soft fuzzy yarn with security eyes. Sturdy golden ring attached.',
-    rating: 5.0,
-    reviewsCount: 12,
-    stockStatus: 'Low Stock',
-    features: ['High-quality soft fuzzy yarn', 'Durable gold-plated keychain clasp', 'Filled with premium hypo-allergenic fiberfill', 'Pocket size (approx. 5cm tall)'],
-    isCustomizable: true
-  },
-  {
-    id: 'p3',
-    name: 'Petite Pastel Tulip & Daisy Mini Bouquet',
-    category: 'bouquets',
-    price: 1200,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9lzmsyI-_0bA_JeV-szeqU4FbdB7Xbwpv5cUuPyQdr6WyUYgS_nCTO9Z01DRTNYXlv7JuvSD9rvyNYapC3RAmigS3I79Yx7u9N9H8LqchK7_o85p1oj4E6440eA1DsXoNQPq8tT24fMbiU4JRRw_ARgwwu0cTZAcb_W6MNRzBQfqgDvMjmTxctFKX8rColRDHFRT4NtxR9CpKCZ9gUfXjnujnLDZJIlok_NH6AW4sJgwTY5T_lqlzvElLtQN6U27V58mguA-U60o',
-    description: 'A charming mini arrangement featuring soft yellow tulips, cream-colored daisies, and rich green leaves. Wrapped in rustic aesthetic paper and tied with a dainty bow. The perfect desktop companion or token of appreciation.',
-    rating: 4.8,
-    reviewsCount: 15,
-    stockStatus: 'In Stock',
-    features: ['Vibrant, high-saturation color yarns', 'Wrapped in premium Korean-style flower paper', 'Compact and sturdy stem support', 'Dust-resistant and easy to clean'],
-    isCustomizable: true
-  },
-  {
-    id: 'p4',
-    name: 'Bespoke Beaded Floral Charm Bracelet',
-    category: 'jewelry',
-    price: 350,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBi7iYN8aWExmGzBFRQ9YIsnQYSuED1iVLM6WBodU6N_uhBDlZrLv6385tHSFgtWC53dHDVlNb-AabC_mZWct-SzhKIN0Mq5P08Y7snW4VV4deohmhvX2hD7mw8rYUsQGsePbWrGBe-Lo93ffrvE-COmlwALphARSHqvwN2yayqZ5ddBKOqcBGHC-EJdOijjKSBH572fwISP-seq4b12gSOoBJSGwQ8ngu3hXa4R-uHWZCB5ojEEGjITuSWEUI9_eYTR0HRvTruDqc',
-    description: 'A delicate beaded bracelet with dainty pastel seed beads, custom name letter charms (optional), and an adorable miniature crochet pink flower charm. Has a sturdy elastic band designed to fit comfortably.',
-    rating: 4.9,
-    reviewsCount: 8,
-    stockStatus: 'In Stock',
-    features: ['Premium Japanese seed glass beads', 'Handmade crochet cotton flower charm', 'Stretch-to-fit ultra-durable string', 'Personalization with initials available'],
-    isCustomizable: true
-  },
-  {
-    id: 'p5',
-    name: 'Sweet Lavender Stems (Set of 3)',
-    category: 'crochet-flowers',
-    price: 600,
-    image: 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?auto=format&fit=crop&q=80&w=600',
-    description: 'An elegant bunch of three lavender sprigs in different shades of pastel purple. Beautifully structured with flexible inner stems, allowing you to shape them to fit any vase or container.',
-    rating: 4.7,
-    reviewsCount: 6,
-    stockStatus: 'In Stock',
-    features: ['Three individual lavender stems', 'Flexible wire core for easy styling', 'Infused with lavender essential oil for a gentle scent', 'Zero-maintenance home decor item'],
-    isCustomizable: false
-  },
-  {
-    id: 'p6',
-    name: 'Fuzzy Daisy Pin Brooch',
-    category: 'brooches',
-    price: 280,
-    image: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&q=80&w=600',
-    description: 'A cozy, cute flower brooch crafted with fuzzy chenille yarn for a soft, tactile feel. Pin it on your denim jacket, backpack, tote bag, or beanie to add an instant touch of cozy whimsical flair!',
-    rating: 5.0,
-    reviewsCount: 4,
-    stockStatus: 'In Stock',
-    features: ['Super soft chenille fuzzy yarn', 'Secure silver-plated safety pin backing', 'Hand-stitched detailing', 'Diameter: approx. 6cm'],
-    isCustomizable: true
-  },
-  {
-    id: 'p7',
-    name: 'Pastel Patchwork Tote Bag',
-    category: 'bags',
-    price: 2400,
-    image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600',
-    description: 'A spacious and highly durable handmade crochet tote bag styled with gorgeous pastel square patches. Fully lined inside with a magnetic clasp closure and a small pocket for your keys and phone.',
-    rating: 4.9,
-    reviewsCount: 9,
-    stockStatus: 'Made to Order',
-    features: ['Sturdy double-yarn construction', 'Soft inner cotton lining', 'Inner pocket and magnetic button closure', 'Generous strap length for over-the-shoulder wear'],
-    isCustomizable: true
-  },
-  {
-    id: 'p8',
-    name: 'Blooming Sunflower Desk Companion',
-    category: 'crochet-flowers',
-    price: 450,
-    image: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&q=80&w=600',
-    description: 'A cheerful single crochet sunflower mounted on a stable base or flexible pot, designed to bring bright, warm sunshine to your study desk, work cubicle, or bedroom nightstand.',
-    rating: 5.0,
-    reviewsCount: 11,
-    stockStatus: 'In Stock',
-    features: ['Bright sunflower yellow and deep brown yarn', 'Flexible, posable leaf stems', 'Provides positive, warm desk energy', 'Great miniature gift item'],
-    isCustomizable: false
-  }
-];
+export const CartDrawer: React.FC<CartDrawerProps> = ({
+  isOpen,
+  onClose,
+  cart,
+  onUpdateQuantity,
+  onRemoveItem,
+  onClearCart,
+  onAddOrder,
+}) => {
+  const [shippingLocation, setShippingLocation] = useState<'KTM' | 'Outside_KTM'>('KTM');
+  const [paymentMethod, setPaymentMethod] = useState<'esewa' | 'cod'>('cod');
+  const [customerName, setCustomerName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [instagramHandle, setInstagramHandle] = useState('');
+  
+  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'details' | 'success'>('cart');
+  const [lastOrderDetails, setLastOrderDetails] = useState<{ id: string; total: number } | null>(null);
 
-export const INITIAL_REVIEWS: Review[] = [
-  {
-    id: 'r1',
-    productId: 'p1',
-    author: 'Suman Shrestha',
-    rating: 5,
-    comment: 'The bouquet is so beautiful and smells like heaven! Anshika wrapped it so elegantly. Best gift ever.',
-    date: '2026-06-15'
-  },
-  {
-    id: 'r2',
-    productId: 'p7',
-    author: 'Priya Karki',
-    rating: 5,
-    comment: 'Requested a custom lavender-themed bag and Anshika did a perfect job. Stitches are neat and sturdy. Truly talented!',
-    date: '2026-06-18'
-  },
-  {
-    id: 'r3',
-    productId: 'p2',
-    author: 'Neha Gupta',
-    rating: 5,
-    comment: 'The packaging was so adorable with little kitty stamps! The keychain itself is super soft. Will buy again!',
-    date: '2026-06-20'
-  },
-  {
-    id: 'r4',
-    productId: 'p4',
-    author: 'Aarav Joshi',
-    rating: 5,
-    comment: 'Bought this bracelet for my sister with her initials. She is obsessed! The miniature flower charm is cute.',
-    date: '2026-06-22'
-  },
-  {
-    id: 'r5',
-    productId: 'p3',
-    author: 'Ishani Thapa',
-    rating: 4,
-    comment: 'Sweetest seller! The tulip bouquet is lovely and brightens my desk. Highly recommend handmade over real flowers!',
-    date: '2026-06-25'
-  }
-];
+  if (!isOpen) return null;
 
-export const FAQS = [
-  {
-    question: 'How do I request a custom order?',
-    answer: 'You can use our Custom Order tab to configure your item, select colors, add references, and calculate an estimate. After submitting, we will contact you on Instagram (@prettykitty.888) or WhatsApp to finalize the details!'
-  },
-  {
-    question: 'Where do you deliver and what are the charges?',
-    answer: 'We deliver all across Nepal! Delivery inside Kathmandu Valley takes 1-3 business days (Rs. 100), and outside KTM takes 3-7 business days via courier services (Rs. 150-200).'
-  },
-  {
-    question: 'Can I choose custom yarn colors for a bouquet?',
-    answer: 'Absolutely! Most of our bouquets are made to order, and you can request custom color pairings for roses, tulips, lavenders, and daisy stems without extra charges.'
-  },
-  {
-    question: 'How do I care for my crochet flowers?',
-    answer: 'Crochet flowers are everlasting! Simply use a hair dryer on a cold, low setting or a soft brush to gently blow away any accumulated dust once in a while. Keep them away from damp environments.'
-  }
-];
+  const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const deliveryFee = shippingLocation === 'KTM' ? 100 : 200;
+  const total = subtotal + (cart.length > 0 ? deliveryFee : 0);
+
+  const handleNextStep = () => {
+    if (checkoutStep === 'cart') {
+      setCheckoutStep('details');
+    }
+  };
+
+  const handleCheckoutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customerName || !phoneNumber || !address) return;
+
+    const orderId = `PK-${Math.floor(1000 + Math.random() * 9000)}`;
+    const deliveryDetails = {
+      name: customerName,
+      phone: phoneNumber,
+      address,
+      instagram: instagramHandle,
+      location: shippingLocation,
+      payment: paymentMethod,
+    };
+
+    onAddOrder({
+      id: orderId,
+      items: [...cart],
+      total,
+      deliveryDetails,
+    });
+
+    setLastOrderDetails({ id: orderId, total });
+    setCheckoutStep('success');
+    onClearCart();
+    
+    // Reset fields
+    setCustomerName('');
+    setPhoneNumber('');
+    setAddress('');
+    setInstagramHandle('');
+  };
+
+  const handleReset = () => {
+    setCheckoutStep('cart');
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Overlay Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="absolute inset-y-0 right-0 max-w-full flex">
+        <div
+          id="cart-drawer-container"
+          className="w-screen max-w-md bg-white/95 backdrop-blur-lg border-l border-pink-100 shadow-2xl flex flex-col justify-between"
+        >
+          {/* Header */}
+          <div className="p-5 border-b border-pink-100 flex items-center justify-between bg-pink-50/20">
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5 text-pink-600" />
+              <h2 className="text-lg font-bold text-gray-900">Your Craft Bag ({cart.length})</h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-pink-100 text-gray-500 hover:text-pink-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Cart Contents */}
+          <div className="flex-grow overflow-y-auto p-5 space-y-4">
+            {checkoutStep === 'cart' && (
+              <>
+                {cart.length === 0 ? (
+                  <div className="text-center py-16 space-y-4">
+                    <div className="w-20 h-20 rounded-full bg-pink-50 flex items-center justify-center mx-auto text-pink-400">
+                      <ShoppingBag className="w-10 h-10" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-semibold text-gray-800">Your craft bag is empty</p>
+                      <p className="text-xs text-gray-500">Pick up some cute handmade items!</p>
+                    </div>
+                  </div>
+                ) : (
+                  cart.map((item) => (
+                    <div
+                      key={`${item.product.id}-${item.selectedColor || ''}`}
+                      className="flex gap-4 p-4 rounded-2xl bg-white border border-pink-100/40 shadow-sm relative group"
+                    >
+                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-pink-50/20 border border-pink-100/10 flex-shrink-0">
+                        <img
+                          src={item.product.image}
+                          alt={item.product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-grow flex flex-col justify-between py-1">
+                        <div>
+                          <h4 className="font-semibold text-sm text-gray-800 line-clamp-1 pr-6">
+                            {item.product.name}
+                          </h4>
+                          {item.selectedColor && (
+                            <span className="text-[10px] bg-pink-50 text-pink-700 px-2 py-0.5 rounded-full inline-flex items-center gap-1 mt-1 font-medium">
+                              <span className="w-2 h-2 rounded-full bg-rose-400 inline-block" />
+                              {item.selectedColor}
+                            </span>
+                          )}
+                          {item.customNotes && (
+                            <p className="text-[10px] text-pink-500 italic mt-1 line-clamp-1">
+                              "{item.customNotes}"
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-sm text-pink-700">
+                            Rs. {item.product.price.toLocaleString()}
+                          </span>
+                          
+                          {/* Quantity selector */}
+                          <div className="flex items-center border border-gray-100 rounded-full bg-pink-50/20">
+                            <button
+                              onClick={() => onUpdateQuantity(item.product.id, -1)}
+                              className="px-2 py-1 hover:bg-pink-100 text-gray-600 rounded-l-full transition-colors font-bold text-sm"
+                            >
+                              -
+                            </button>
+                            <span className="px-2 text-xs font-bold text-gray-800">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => onUpdateQuantity(item.product.id, 1)}
+                              className="px-2 py-1 hover:bg-pink-100 text-gray-600 rounded-r-full transition-colors font-bold text-sm"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Trash Button */}
+                      <button
+                        onClick={() => onRemoveItem(item.product.id)}
+                        className="absolute top-3 right-3 p-1.5 rounded-lg text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                        title="Remove item"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </>
+            )}
+
+            {checkoutStep === 'details' && (
+              <form onSubmit={handleCheckoutSubmit} className="space-y-4">
+                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-2">
+                  Delivery Details (Nepal)
+                </h3>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-600 uppercase">Your Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Reshma Thapa"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-pink-400 outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-600 uppercase">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="e.g. 9841XXXXXX"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-pink-400 outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-600 uppercase">Instagram / Tiktok Handle</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. @reshma_crochets (to verify your order)"
+                    value={instagramHandle}
+                    onChange={(e) => setInstagramHandle(e.target.value)}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-pink-400 outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-600 uppercase">Detailed Address *</label>
+                  <textarea
+                    required
+                    rows={2}
+                    placeholder="e.g. New Baneshwor, Kathmandu (Near Civil Hospital)"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-pink-400 outline-none resize-none"
+                  />
+                </div>
+
+                {/* Delivery Location Selection */}
+                <div className="space-y-2 pt-2">
+                  <label className="text-[11px] font-bold text-gray-600 uppercase block">Delivery Zone</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShippingLocation('KTM')}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all ${
+                        shippingLocation === 'KTM'
+                          ? 'border-pink-500 bg-pink-50 text-pink-700'
+                          : 'border-gray-200 bg-white hover:border-pink-300'
+                      }`}
+                    >
+                      <Truck className="w-4 h-4 text-pink-600" />
+                      <span>Inside KTM Valley</span>
+                      <span className="text-[10px] text-gray-500 font-normal">Rs. 100 • 1-3 days</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShippingLocation('Outside_KTM')}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all ${
+                        shippingLocation === 'Outside_KTM'
+                          ? 'border-pink-500 bg-pink-50 text-pink-700'
+                          : 'border-gray-200 bg-white hover:border-pink-300'
+                      }`}
+                    >
+                      <Truck className="w-4 h-4 text-purple-600" />
+                      <span>Outside Kathmandu</span>
+                      <span className="text-[10px] text-gray-500 font-normal">Rs. 200 • 3-7 days</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Payment Methods */}
+                <div className="space-y-2 pt-2">
+                  <label className="text-[11px] font-bold text-gray-600 uppercase block">Payment Method</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('cod')}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all ${
+                        paymentMethod === 'cod'
+                          ? 'border-pink-500 bg-pink-50 text-pink-700'
+                          : 'border-gray-200 bg-white hover:border-pink-300'
+                      }`}
+                    >
+                      <ShoppingBag className="w-4 h-4 text-amber-600" />
+                      <span>Cash on Delivery</span>
+                      <span className="text-[10px] text-gray-500 font-normal">KTM Valley Only</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('esewa')}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all ${
+                        paymentMethod === 'esewa'
+                          ? 'border-pink-500 bg-pink-50 text-pink-700'
+                          : 'border-gray-200 bg-white hover:border-pink-300'
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4 text-green-600" />
+                      <span>eSewa / Fonepay</span>
+                      <span className="text-[10px] text-gray-500 font-normal">QR Code Transfer</span>
+                    </button>
+                  </div>
+                </div>
+
+                {paymentMethod === 'esewa' && (
+                  <div className="p-3 bg-pink-50/50 border border-dashed border-pink-200 rounded-xl space-y-2 text-center text-xs">
+                    <p className="font-semibold text-pink-700 flex items-center justify-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5" /> Fonepay / eSewa Merchant QR
+                    </p>
+                    <div className="w-28 h-28 bg-white mx-auto border border-pink-100 flex items-center justify-center relative rounded-lg p-1.5 shadow-sm">
+                      {/* Interactive mock QR */}
+                      <div className="w-full h-full bg-gradient-to-tr from-gray-900 to-pink-900 opacity-90 rounded flex flex-col items-center justify-center text-[10px] text-white">
+                        <span>Pretty Kitty QR</span>
+                        <div className="w-5 h-5 bg-pink-500 rounded-full flex items-center justify-center text-[8px] font-bold mt-1">PK</div>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-500">
+                      Kindly scan the QR to transfer <b>Rs. {total.toLocaleString()}</b> and proceed. We'll verify instantly!
+                    </p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full text-sm hover:shadow-lg transition-all mt-4"
+                >
+                  Place Handmade Order • Rs. {total.toLocaleString()}
+                </button>
+              </form>
+            )}
+
+            {checkoutStep === 'success' && lastOrderDetails && (
+              <div className="text-center py-8 space-y-6">
+                <div className="w-16 h-16 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center mx-auto shadow-inner animate-bounce">
+                  🌸
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-gray-900">Order Placed, Lovely!</h3>
+                  <p className="text-xs text-gray-500 max-w-xs mx-auto">
+                    Anshika has received your request and is ready to stitch up your custom goodies!
+                  </p>
+                </div>
+
+                <div className="p-4 bg-pink-50/50 rounded-2xl border border-pink-100 text-left space-y-2.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-500">Order Reference:</span>
+                    <span className="font-mono font-bold text-gray-800">{lastOrderDetails.id}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-500">Total Charged:</span>
+                    <span className="font-bold text-pink-700">Rs. {lastOrderDetails.total.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-500">Status:</span>
+                    <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full font-bold text-[9px] uppercase">
+                      Pending Stitching
+                    </span>
+                  </div>
+                  <p className="text-[9px] text-gray-500 pt-1.5 border-t border-pink-100/40 text-center italic">
+                    We will ping you on your phone or Instagram to confirm shipping details.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleReset}
+                  className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full text-xs transition-all"
+                >
+                  Keep Browsing Cute Finds
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Pricing Breakdown & Next Button (Only in 'cart' step and if items exist) */}
+          {checkoutStep === 'cart' && cart.length > 0 && (
+            <div className="p-5 border-t border-pink-100 bg-white space-y-4">
+              <div className="space-y-2 text-xs text-gray-600">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span className="font-semibold text-gray-900">Rs. {subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Local Delivery (Nepal):</span>
+                  <div className="flex items-center gap-1.5 font-semibold text-gray-900">
+                    <select
+                      value={shippingLocation}
+                      onChange={(e) => setShippingLocation(e.target.value as 'KTM' | 'Outside_KTM')}
+                      className="text-[11px] p-0.5 border border-pink-200 rounded outline-none"
+                    >
+                      <option value="KTM">KTM Valley (Rs. 100)</option>
+                      <option value="Outside_KTM">Outside KTM (Rs. 200)</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="h-px bg-pink-50" />
+                <div className="flex justify-between text-sm font-bold text-gray-900">
+                  <span>Estimated Total:</span>
+                  <span className="text-pink-700">Rs. {total.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <button
+                id="cart-checkout-btn"
+                onClick={handleNextStep}
+                className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 rounded-full text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                Proceed to Checkout
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
