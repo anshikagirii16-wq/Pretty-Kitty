@@ -1,0 +1,6 @@
+{
+  "name": "Pretty Kitty",
+  "description": "An exquisite and whimsical handmade gift boutique featuring beautiful crochet flowers, bouquets, jewelry, keychains, and custom orders by Anshika.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
